@@ -1,7 +1,7 @@
 from settings import sources
 from django.conf import settings
 from django.http import HttpResponse
-from core import utils
+from core import utils, decorators
 import os
 
 def dirToJson( inFs, path = '/', recursive = False):
@@ -11,10 +11,10 @@ def dirToJson( inFs, path = '/', recursive = False):
         infos = inFs.getinfo( os.path.join(path, item ) )
         isLeaf = not inFs.isdir( item )
         row = {
-            'name':item
+            'text':item
             ,'size':infos['size']
-            ,'modified_time':infos['modified_time']
-            ,'created_time':infos['created_time']
+            ,'modified_time':infos['modified_time'].isoformat()
+            ,'created_time':infos['created_time'].isoformat()
             ,'leaf':isLeaf
             ,'items':[]
         }
@@ -31,18 +31,28 @@ def example( request ):
     }
     return utils.renderWithContext(request, 'example.html', d ) 
     
-    
+@decorators.ajax_request
 def api( request ):
     cmd = request.POST['cmd']
     path = request.POST['path']
     
-    folder = sources[path]
-    
+    folder = sources[path]    
     from fs.osfs import OSFS
     cur_fs = OSFS(folder)
-    print dirToJson( cur_fs, recursive = True )
-    return HttpResponse('api')
     
+    if cmd == 'get':
+        print 1
+        return {'data':dirToJson( cur_fs, recursive = True )}
+    elif cmd == 'newdir':
+        print 'newdir', path
+    elif cmd == 'rename':
+        print 'rename', path
+    elif cmd == 'delete':
+        print 'delete', path
+    elif cmd == 'view':
+        print 'view', path
+    return {'success':False}
     
+@decorators.ajax_request    
 def upload( request ):
     return HttpResponse('api')
