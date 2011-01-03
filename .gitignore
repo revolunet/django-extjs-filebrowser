@@ -1,0 +1,8 @@
+*.svn
+*.pyc
+local_settings.py
+data/*
+djangoapp/scripts/apache.wsgi
+tests/*
+demos/*
+core/static/js/ext*
