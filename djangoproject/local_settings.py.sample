@@ -1,0 +1,47 @@
+# -*- encoding: UTF-8 -*-
+
+import os
+
+BASE_DIR = os.path.realpath(os.path.dirname(__file__))
+
+DEBUG = True
+LOGGING_DEBUG = 'debug'
+
+INTERNAL_IPS = (
+    '127.0.0.1'
+    ,'192.168.1.31'
+)
+ADMINS = (
+     ('Julien', 'julien@bouquillon.com'),
+)
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_AGE = 1209600
+
+
+EMAIL_HOST = '127.0.0.01'
+
+DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'django-extjs-explorer'             # Or path to database file if using sqlite3.
+DATABASE_USER = 'dev'             # Not used with sqlite3.
+DATABASE_PASSWORD = ''         # Not used with sqlite3.
+DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+  
+EXTJS_PATH = '/static/js/ext-3.2.1'
+DJANGO_SOURCE = r'C:\Users\juju\Desktop\Pro\svn\django110'       # specific django version for this project
+
+DATA_PATH = os.path.join(BASE_DIR, 'data')                      # a central place where to store apps datas
+
+HOST = 'http://192.168.1.31'                                     # your real host
+DEFAULT_FROM_EMAIL = 'admin@quickprez.com'
+  
+LOGIN_URL = '/'
+LOGOUT_URL = '/apps/logout'
+LOGIN_TEMPLATE = 'custom_login.html'
+DEFAULT_VIEW = 'apps.django_extjs_filebrowser.views.example'
+ 
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = 'm@9zefzefc@_3gz%v&zfzefzefzefefzf^l&t-zffzzfaerhgzefzefryjr'
+ 
