@@ -34,7 +34,7 @@ def example( request ):
 @decorators.ajax_request
 def api( request ):
     cmd = request.POST['cmd']
-    path = request.POST['path']
+    path = request.POST['path'].split('/')[0]
     
     folder = sources[path]    
     from fs.osfs import OSFS
@@ -44,14 +44,17 @@ def api( request ):
         print 1
         return {'data':dirToJson( cur_fs, recursive = True )}
     elif cmd == 'newdir':
-        print 'newdir', path
+        remaning = '/'.join(request.POST['path'].split('/')[1:])
+        print 'newdir', request.POST['path'], remaning
+        cur_fs.makedir(remaning)
+        return {'success':True}
     elif cmd == 'rename':
         print 'rename', path
     elif cmd == 'delete':
         print 'delete', path
     elif cmd == 'view':
         print 'view', path
-    return {'success':False}
+    return {'success':False, msg:'Erreur'}
     
 @decorators.ajax_request    
 def upload( request ):
