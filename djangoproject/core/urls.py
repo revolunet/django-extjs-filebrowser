@@ -20,11 +20,11 @@ for file in os.listdir(os.path.join(settings.BASE_DIR, 'apps')):
             (r'' , include('apps.%s.urls' % file)), 
         ) 
   
-# auto apps includes
-urlpatterns += patterns('',    
-    (r'^apps/(?P<app>[^/]+)/(?P<view>[^/]+)/?(?P<path>.+)?$', 'core.appdispatcher.dispatch' ),
-    (r'^apps/(?P<app>[^/]+)/?$', 'core.appdispatcher.dispatch' ),
-)
+#auto apps includes
+# urlpatterns += patterns('',    
+    # (r'^apps/(?P<app>[^/]+)/(?P<view>[^/]+)/?(?P<path>.+)?$', 'core.appdispatcher.dispatch' ),
+    # (r'^apps/(?P<app>[^/]+)/?$', 'core.appdispatcher.dispatch' ),
+# )
  
 # default fallback
 urlpatterns += patterns('',
