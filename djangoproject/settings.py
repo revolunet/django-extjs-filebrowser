@@ -56,7 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'apps.django_extjs_explorer',
+    'apps.django_extjs_filebrowser',
     'core.django_concurrent_test_server',   # only for DEV !
 )
 
