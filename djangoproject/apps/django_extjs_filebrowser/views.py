@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from core import utils, decorators
 import os
+import datetime
 
 def dirToJson( inFs, path = '/', recursive = False):
     print 'dirToJson', path
@@ -10,11 +11,12 @@ def dirToJson( inFs, path = '/', recursive = False):
     for item in inFs.listdir(path = path ):
         infos = inFs.getinfo( os.path.join(path, item ) )
         isLeaf = not inFs.isdir( item )
+        print infos
         row = {
             'text':item
-            ,'size':infos['size']
-            ,'modified_time':infos['modified_time'].isoformat()
-            ,'created_time':infos['created_time'].isoformat()
+            ,'size':infos.get('size', 0)
+            ,'modified_time':infos.get('modified_time', datetime.datetime.now()).isoformat()
+            ,'created_time':infos.get('created_time', datetime.datetime.now()).isoformat()
             ,'leaf':isLeaf
             ,'items':[]
         }
@@ -31,30 +33,69 @@ def example( request ):
     }
     return utils.renderWithContext(request, 'example.html', d ) 
     
+def splitPath( inPath ):
+    root = inPath.split('/')[0]
+    path = '/'.join(inPath.split('/')[1:])
+    return root, path
+    
 @decorators.ajax_request
 def api( request ):
-    cmd = request.POST['cmd']
-    path = request.POST['path'].split('/')[0]
+    cmd = request.POST.get('cmd', request.GET.get('cmd'))
+    if not cmd:
+        raise Http404
     
-    folder = sources[path]    
-    from fs.osfs import OSFS
-    cur_fs = OSFS(folder)
+    # todo: remove these special cases
+    if cmd == 'delete':
+        root, path = splitPath( request.POST['file'] )
+    if cmd in ['view', 'download']:
+        root, path = splitPath( request.GET['file'] )
+    elif cmd == 'rename':
+        root, path = splitPath( request.POST['oldname'] )
+    else:
+        root, path = splitPath( request.POST['path'] )
+        
+    source = sources[root]
+    cur_fs = source['cls']( **source['params'] )
     
     if cmd == 'get':
-        print 1
-        return {'data':dirToJson( cur_fs, recursive = True )}
+        return dirToJson( cur_fs, path, recursive = True )
     elif cmd == 'newdir':
-        remaning = '/'.join(request.POST['path'].split('/')[1:])
-        print 'newdir', request.POST['path'], remaning
-        cur_fs.makedir(remaning)
+        cur_fs.makedir( path )
         return {'success':True}
     elif cmd == 'rename':
-        print 'rename', path
+        # todo : handle FS level moves
+        root2, path2 = splitPath( request.POST['newname'] )
+        cur_fs.rename( path, path2 )
+        return {'success':True}
     elif cmd == 'delete':
-        print 'delete', path
+        if cur_fs.isdir( path ):
+            cur_fs.removedir( path )
+        else:
+            cur_fs.remove( path )
+        return {'success':True}
     elif cmd == 'view':
-        print 'view', path
-    return {'success':False, msg:'Erreur'}
+        # todo redir to APACHE or OTHER
+        file = cur_fs.open( path, 'rb' )
+        return download( path, file)
+    elif cmd == 'download':
+        # todo redir to APACHE or OTHER
+        #print 'download', root, path
+        file = cur_fs.open( path, 'rb' )
+        return download( path, file, attachment = True)
+        
+    return {'success':False, 'msg':'Erreur'}
+    
+def download( inFilePath, inFileObj, attachment = False ):
+    import mimetypes
+    inFileName = inFilePath.split('/')[-1]
+    mt = mimetypes.guess_type(inFileName)
+    response = HttpResponse(mimetype=mt)
+    if attachment:
+        response['Content-Disposition'] = 'attachment; filename=%s' % inFileName
+    response.write( inFileObj.read() )
+    return response
+
+    
     
 @decorators.ajax_request    
 def upload( request ):

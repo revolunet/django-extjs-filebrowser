@@ -21,9 +21,9 @@ def ajax_request(func):
     def wrapper(request, *args, **kwargs):
         response = func(request, *args, **kwargs)
         if isinstance(response, dict):
-            print 2
+            return utils.JsonResponse(response)
+        elif isinstance(response, list):
             return utils.JsonResponse(response)
         else:
-            print 3, response
             return response
     return wrapper  
