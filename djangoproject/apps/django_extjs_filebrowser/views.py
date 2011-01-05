@@ -31,9 +31,7 @@ def dirToJson( inFs, path = '/', recursive = False):
     return data
     
 def example( request ):
-    d = {
-        
-    }
+    d = { }
     return utils.renderWithContext(request, 'example.html', d ) 
     
 def splitPath( inPath ):
@@ -76,6 +74,7 @@ def api( request ):
                 row = {
                     'text':item
                     ,'size':0
+                    ,'iconCls':'test'
                     ,'modified_time':''
                     ,'created_time':''
                     ,'leaf':False
@@ -136,16 +135,14 @@ def download( inFilePath, inFileObj, attachment = False ):
 def upload(request): 
     path = request.META.get('HTTP_X_FILE_NAME')
 
-    root, path = splitPath( path.decode('UTF-8') )
-    
     file_list = []
     filename_list = []
     
     allowed_extensions = 'jpg,jpeg,gif,png,pdf,swf,avi,mp4,mp3,flv,doc,docx,xls,xlsx,ppt,pptx'.split(',')
-    
-    cur_fs = getFsFromKey( root )
-    
-    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+
+    if path and request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        root, path = splitPath( path.decode('UTF-8') )
+        cur_fs = getFsFromKey( root )
         data = request.raw_post_data
         fName = path
         if not fName[fName.rfind('.')+1:].lower() in allowed_extensions:
@@ -154,17 +151,10 @@ def upload(request):
         f = cur_fs.open( path, 'wb')
         f.write(data)
         f.close()
-        # dest.close()  
-        
-        # dstFile = u'%s' % os.path.join(outPath, fName)
-        # utils.CheckPathSecurity(dstFile, outPath)
-        # dest = open(dstFile, 'wb')
-        # dest.write(data)
-        # dest.close()  
-        # file_list.append(dstFile)
-        # filename_list.append({'file':os.path.split(fName)[1]})
-    
+
     else:
+        root, path = splitPath( request.POST['path'].decode('UTF-8') )
+        cur_fs = getFsFromKey( root )
         for key in request.FILES.keys():
             upload = request.FILES[key]
             fName = upload.name
@@ -173,7 +163,7 @@ def upload(request):
                 # todo : log + mail
                 print 'FORBIDDEN FILE : %s ' % fName.encode('UTF-8')
                 raise Exception('extension not allowed %s' % fName.encode('UTF-8'))
-            f = cur_fs.open( path, 'wb')
+            f = cur_fs.open( path + '/' + fName, 'wb')
             for chunk in upload.chunks():
                 f.write(chunk)
             f.close()         
