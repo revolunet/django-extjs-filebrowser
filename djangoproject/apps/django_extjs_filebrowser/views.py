@@ -82,7 +82,7 @@ def api( request ):
                 }
                 items.append( row )
             return items
-        return dirToJson( cur_fs, path, recursive = True )
+        return dirToJson( cur_fs, path, recursive = False )
     elif cmd == 'newdir':
         cur_fs.makedir( path )
         return {'success':True}

@@ -100,15 +100,18 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
         self.encoding = encoding or sys.getfilesystemencoding()
         self.dir_mode = dir_mode
         root_path = os.path.expanduser(os.path.expandvars(root_path))
+        #print root_path
         root_path = os.path.normpath(os.path.abspath(root_path))
+        #print root_path
         #  Enable long pathnames on win32
-        if sys.platform == "win32":
-            if not root_path.startswith("\\\\?\\"):
-                root_path = u"\\\\?\\" + root_path
+        #if sys.platform == "win32":
+        #    if not root_path.startswith("\\\\?\\"):
+         #       root_path = u"\\\\?\\" + root_path
             #  If it points at the root of a drive, it needs a trailing slash.
-            if len(root_path) == 6:
-                root_path = root_path + "\\"
-
+          #  if len(root_path) == 6:
+           #     root_path = root_path + "\\"
+        #root_path = root_path+ '\\'
+        #print root_path
         if create:
             try:
                 _os_makedirs(root_path, mode=dir_mode)

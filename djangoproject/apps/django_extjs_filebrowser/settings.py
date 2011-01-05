@@ -19,6 +19,13 @@ sources = {
             #,'encoding':
         }
     }
+    ,'NAS':{
+        'cls':OSFS
+        ,'params':{
+            'root_path':r'\\nas\public'
+            #,'encoding':
+        }
+    }
     ,'s3test':{
         'cls':S3FS
         ,'params':{
