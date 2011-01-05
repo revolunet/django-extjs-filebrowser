@@ -6,8 +6,8 @@ from fs.ftpfs import FTPFS
 
  
     
-AWS_ACCESS_KEY_ID  = 'AKIAJNQ4IARVJKRBCYAQ'
-AWS_SECRET_ACCESS_KEY ='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'
+AWS_ACCESS_KEY_ID  = 'aazfzefzefzef'
+AWS_SECRET_ACCESS_KEY ='+DZaxzfzafefezfeQkDRzR'
 
 
 
@@ -38,9 +38,9 @@ sources = {
     ,'simple FTP':{
         'cls':FTPFS
         ,'params':{
-            'host':'kmille.net'
-            ,'user':'kmille'
-            ,'passwd':'gouda'
+            'host':'pouet.net'
+            ,'user':'username'
+            ,'passwd':'password'
             #,'acct':''
             #,'port':21
         }
