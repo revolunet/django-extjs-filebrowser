@@ -89,7 +89,17 @@ def api( request ):
     elif cmd == 'rename':
         # todo : handle FS level moves
         root2, path2 = splitPath( request.POST['newname'] )
-        cur_fs.rename( path, path2 )
+        if root == root2:
+            # same FS
+            cur_fs.rename( path, path2 )
+        else:
+            # different FS
+            cur_fs2 = getFsFromKey( root2 )
+            inFile = cur_fs.open( path, 'rb' )
+            outFile = cur_fs2.open( path2, 'wb' ) 
+            outFile.write( inFile.read() )
+            outFile.close()
+            
         return {'success':True}
     elif cmd == 'delete':
         if cur_fs.isdir( path ):
