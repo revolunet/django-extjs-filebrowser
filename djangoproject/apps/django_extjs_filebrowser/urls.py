@@ -10,6 +10,5 @@ urlpatterns = patterns('',
      (r'filebrowser/api', views.api, {}, 'filebrowser-api'),
      (r'filebrowser/upload', views.upload, {}, 'filebrowser-api-upload'),
 
-     
 ) 
  
