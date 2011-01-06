@@ -38,6 +38,11 @@ Comments welcome at [contact@revolunet.com][8]
  * point a decent browser to http://127.0.0.1:8000
  * manage your files
  
+**Todo**
+
+ * static redirections
+ * github like ajax history
+ * icons from filetypes
 
 
 
