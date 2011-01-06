@@ -43,6 +43,8 @@ Comments welcome at [contact@revolunet.com][8]
  * static redirections
  * github like ajax history
  * icons from filetypes
+ * add PHP proxy example
+ * add FS : Google docs, drop.io...
 
 
 
