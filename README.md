@@ -31,7 +31,7 @@ Comments welcome at [contact@revolunet.com][8]
  
 **Installation**
 
- * git clone
+ * git clone [git@github.com:revolunet/django-extjs-filebrowser.git][11]
  * git submodule update
  * configure djangoproject/local_settings.py and djangoproject/apps/django_extjs_filebrowser/settings.py from the samples
  * start python djangoproject/scripts/manage.py runserver
@@ -58,3 +58,4 @@ Comments welcome at [contact@revolunet.com][8]
   [8]: mailto:contact@revolunet.com
   [9]: https://github.com/revolunet/django-extjs-filebrowser/raw/master/example.jpg
   [10]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/djangoproject/apps/django_extjs_filebrowser
+  [11]: git@github.com:revolunet/django-extjs-filebrowser.git
