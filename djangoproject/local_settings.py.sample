@@ -28,7 +28,7 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
   
-EXTJS_PATH = '/static/js/ext-3.2.1'
+EXTJS_PATH = 'http://dev.sencha.com/deploy/dev'
 DJANGO_SOURCE = r'C:\Users\juju\Desktop\Pro\svn\django110'       # specific django version for this project
 
 DATA_PATH = os.path.join(BASE_DIR, 'data')                      # a central place where to store apps datas
