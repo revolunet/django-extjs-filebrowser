@@ -45,6 +45,7 @@ Comments welcome at [contact@revolunet.com][8]
  * icons from filetypes
  * add PHP proxy example
  * add FS : Google docs, drop.io...
+ * drag from UI to desktop ?
 
 
 
