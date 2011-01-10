@@ -5,7 +5,7 @@ django pluggable app with ExtJs based explorer like to browse, manage, upload an
 
 The django backend uses PyFilesystem so you can read/write to differents datasources and copy files across differents servers or amazon s3 buckets.
 
-The  [master branch][11] is the reusable app itself and you have a django-example branch with a [working django project][12]
+The  [master branch][12] is the reusable app itself and you have a django-example branch with a [working django project][13]
 
 Comments welcome at [contact@revolunet.com][8]
  
@@ -65,5 +65,6 @@ Comments welcome at [contact@revolunet.com][8]
   [9]: https://github.com/revolunet/django-extjs-filebrowser/raw/django-example/example.jpg
   [10]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/djangoproject/apps/django_extjs_filebrowser
   [11]: git@github.com:revolunet/django-extjs-filebrowser.git
-  [12]: https://github.com/revolunet/django-extjs-filebrowser/tree/django-example
+  [12]: https://github.com/revolunet/django-extjs-filebrowser/tree/master
+  [13]: https://github.com/revolunet/django-extjs-filebrowser/tree/django-example
   
