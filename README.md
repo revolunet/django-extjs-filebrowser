@@ -31,8 +31,12 @@ Comments welcome at [contact@revolunet.com][8]
  
 **Installation**
 
+ * This is how to install the full django-example :
  * git clone [git@github.com:revolunet/django-extjs-filebrowser.git][11]
- * git submodule update
+ * git fetch && git checkout django-example
+ * git submodule update --init
+ * cd djangoproject/apps/django_extjs_filebrowser
+ * git submodule update --init
  * configure djangoproject/local_settings.py and djangoproject/apps/django_extjs_filebrowser/settings.py from the samples
  * set EXTJS_PATH and DJANGO_SOURCE variables to point to these libs. (licence problem for ExtJs)
  * start python djangoproject/scripts/manage.py runserver
