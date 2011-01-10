@@ -31,14 +31,23 @@ Comments welcome at [contact@revolunet.com][8]
  
 **Installation**
 
- * git clone
+ * git clone [git@github.com:revolunet/django-extjs-filebrowser.git][11]
  * git submodule update
  * configure djangoproject/local_settings.py and djangoproject/apps/django_extjs_filebrowser/settings.py from the samples
+ * set EXTJS_PATH and DJANGO_SOURCE variables to point to these libs. (licence problem for ExtJs)
  * start python djangoproject/scripts/manage.py runserver
  * point a decent browser to http://127.0.0.1:8000
  * manage your files
  
+**Todo**
 
+ * static redirections
+ * github like ajax history
+ * icons from filetypes
+ * add PHP proxy example
+ * add FS : Google docs, drop.io...
+ * drag from UI to desktop ?
+ * handle move/copy
 
 
   [1]: http://www.djangoproject.com
@@ -51,3 +60,4 @@ Comments welcome at [contact@revolunet.com][8]
   [8]: mailto:contact@revolunet.com
   [9]: https://github.com/revolunet/django-extjs-filebrowser/raw/master/example.jpg
   [10]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/djangoproject/apps/django_extjs_filebrowser
+  [11]: git@github.com:revolunet/django-extjs-filebrowser.git

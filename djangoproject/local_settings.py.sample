@@ -21,7 +21,7 @@ SESSION_COOKIE_AGE = 1209600
 
 EMAIL_HOST = '127.0.0.01'
 
-DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_ENGINE = 'dummy'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = 'django-extjs-explorer'             # Or path to database file if using sqlite3.
 DATABASE_USER = 'dev'             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
