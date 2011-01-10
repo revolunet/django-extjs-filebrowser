@@ -1,11 +1,11 @@
 django-extjs-explorer
 =====================
 
-django reusable app with ExtJs based explorer like to browse, manage, upload and download files to many filesystems.
+django pluggable app with ExtJs based explorer like to browse, manage, upload and download files to many filesystems.
 
 The django backend uses PyFilesystem so you can read/write to differents datasources and copy files across differents servers or amazon s3 buckets.
 
-[Branch master][10] is the reusable app code. You have an example django project in the [django-example branch][12]
+The example django app is located at [djangoproject/apps/django_extjs_filebrowser][10]
 
 Comments welcome at [contact@revolunet.com][8]
  
@@ -21,7 +21,7 @@ Comments welcome at [contact@revolunet.com][8]
  
  
 **Technologies used :**
-
+ 
  * [Django for the server side][1]
  * [PyFileSystem for file access][2]
  * [ExtJs][3] for GUI, with [Saki's FileTreePanel][4], and revolunet [Ext.ux.FileBrowser][5]
@@ -31,8 +31,12 @@ Comments welcome at [contact@revolunet.com][8]
  
 **Installation**
 
+ * This is how to install the full django-example :
  * git clone [git@github.com:revolunet/django-extjs-filebrowser.git][11]
- * git submodule update
+ * git fetch && git checkout django-example
+ * git submodule update --init
+ * cd djangoproject/apps/django_extjs_filebrowser
+ * git submodule update --init
  * configure djangoproject/local_settings.py and djangoproject/apps/django_extjs_filebrowser/settings.py from the samples
  * set EXTJS_PATH and DJANGO_SOURCE variables to point to these libs. (licence problem for ExtJs)
  * start python djangoproject/scripts/manage.py runserver
@@ -61,4 +65,3 @@ Comments welcome at [contact@revolunet.com][8]
   [9]: https://github.com/revolunet/django-extjs-filebrowser/raw/master/example.jpg
   [10]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/djangoproject/apps/django_extjs_filebrowser
   [11]: git@github.com:revolunet/django-extjs-filebrowser.git
-  [12]: https://github.com/revolunet/django-extjs-filebrowser/tree/reusable-app
