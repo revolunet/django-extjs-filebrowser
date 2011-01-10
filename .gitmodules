@@ -1,0 +1,6 @@
+[submodule "static/js/Ext.ux.filebrowser"]
+	path = static/js/Ext.ux.filebrowser
+	url = git@github.com:revolunet/Ext.ux.filebrowser.git
+[submodule "static/js/Ext.ux.upload"]
+	path = static/js/Ext.ux.upload
+	url = git@github.com:revolunet/Ext.ux.upload.git
