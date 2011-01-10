@@ -46,7 +46,7 @@ Comments welcome at [contact@revolunet.com][8]
  * add PHP proxy example
  * add FS : Google docs, drop.io...
  * drag from UI to desktop ?
-
+ * handle move/copy
 
 
   [1]: http://www.djangoproject.com
