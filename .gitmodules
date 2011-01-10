@@ -1,6 +1,0 @@
-[submodule "djangoproject/apps/django_extjs_filebrowser/static/js/Ext.ux.filebrowser"]
-	path = djangoproject/apps/django_extjs_filebrowser/static/js/Ext.ux.filebrowser
-	url = git@github.com:revolunet/Ext.ux.filebrowser.git
-[submodule "djangoproject/apps/django_extjs_filebrowser/static/js/Ext.ux.upload"]
-	path = djangoproject/apps/django_extjs_filebrowser/static/js/Ext.ux.upload
-	url = git@github.com:revolunet/Ext.ux.upload.git
