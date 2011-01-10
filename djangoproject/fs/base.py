@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-
-  fs.base:  base class defining the FS abstraction.
+fs.base
+=======
 
 This module defines the most basic filesystem abstraction, the FS class.
 Instances of FS represent a filesystem containing files and directories
@@ -139,7 +139,6 @@ class FS(object):
 
     An instance of a class derived from FS is an abstraction on some kind
     of filesytem, such as the OS filesystem or a zip file.
-
     """
     
     _meta = {}
@@ -174,6 +173,10 @@ class FS(object):
         pass
 
     def close(self):
+        """Close the filesystem. This will perform any shutdown related
+        operations required. This method will be called automatically when
+        an the filesystem object is cleaned up, but it is a good idea to call
+        it explicitly."""
         self.closed = True
 
     def __getstate__(self):
@@ -190,9 +193,7 @@ class FS(object):
         return state
 
     def __setstate__(self,state):
-        self.__dict__.update(state)
-        #for (k,v) in state.iteritems():
-        #    self.__dict__[k] = v
+        self.__dict__.update(state)        
         lock = state.get("_lock")
         if lock is not None:
             if lock:
@@ -201,19 +202,19 @@ class FS(object):
                 self._lock = DummyLock()
 
     def getmeta(self, meta_name, default=NoDefaultMeta):
-        """Retrieve a meta value associated with an FS object. Meta values are
-        a way of an FS implementation to report potentially useful information
-        associated with the file system.
+        """Retrieve a meta value associated with an FS object.
+
+        Meta values are a way for an FS implementation to report potentially
+        useful information associated with the file system.
         
         A meta key is a lower case string with no spaces. Meta keys may also
         be grouped in namespaces in a dotted notation, e.g. 'atomic.namespaces'.                
-        
         FS implementations aren't obliged to return any meta values, but the
         following are common:
         
-         * *read_only* True if the file system can not be modified
+         * *read_only* True if the file system cannot be modified
          * *network* True if the file system requires network access
-         * *unicode_paths* True if the file system can use unicode paths
+         * *unicode_paths* True if the file system supports unicode paths
          * *case_insensitive_paths* True if the file system ignores the case of paths        
          * *atomic.makedir* True if making a directory is an atomic operation
          * *atomic.rename* True if rename is an atomic operation, (and not implemented as a copy followed by a delete)
@@ -222,6 +223,7 @@ class FS(object):
         The following are less common:
         
          * *free_space* The free space (in bytes) available on the file system   
+         * *total_space* The total space (in bytes) available on the file system   
         
         FS implementations may expose non-generic meta data through a self-named namespace. e.g. 'somefs.some_meta'
         
@@ -263,7 +265,7 @@ class FS(object):
         :param allow_none: if True, this method will return None when there is no system path,
             rather than raising NoSysPathError
         :type allow_none: bool
-        :raises NoSysPathError: If the path does not map on to a system path, and allow_none is set to False (default)
+        :raises NoSysPathError: if the path does not map on to a system path, and allow_none is set to False (default)
         :rtype: unicode
         
         """
@@ -342,6 +344,7 @@ class FS(object):
 
         :param path: A path in the filessystem
         :rtype: bool
+        
         """
         return self.isfile(path) or self.isdir(path)
 
@@ -368,12 +371,12 @@ class FS(object):
         for f in self.listdir():
             yield f
 
-    def listdir(self,   path="./",
-                        wildcard=None,
-                        full=False,
-                        absolute=False,
-                        dirs_only=False,
-                        files_only=False):
+    def listdir(self, path="./",
+                      wildcard=None,
+                      full=False,
+                      absolute=False,
+                      dirs_only=False,
+                      files_only=False):
         """Lists the the files and directories under a given path.
 
         The directory contents are returned as a list of unicode paths.
@@ -404,9 +407,14 @@ class FS(object):
                           absolute=False,
                           dirs_only=False,
                           files_only=False):
+        """Retrieves a list of paths and path info under a given path.
 
-        """Retrieves an iterable of paths and path info (as returned by getinfo) under
-        a given path.
+        This method behaves like listdir() but instead of just returning
+        the name of each item in the directory, it returns a tuple of the
+        name and the info dict as returned by getinfo.
+
+        Depending on the filesystem, this may be more efficient than calling
+        getinfo() on each individual item returned by listdir().
 
         :param path: root of the path to list
         :param wildcard: filter paths that match this wildcard
@@ -430,7 +438,7 @@ class FS(object):
                 return {}
 
         return [(p, getinfo(p))
-                    for p in self.listdir(path,                                          
+                    for p in self.listdir(path,
                                           wildcard=wildcard,
                                           full=full,
                                           absolute=absolute,
@@ -470,6 +478,40 @@ class FS(object):
             entries = [abspath(pathjoin(path, p)) for p in entries]
 
         return entries
+
+    def ilistdir(self, path="./",
+                       wildcard=None,
+                       full=False,
+                       absolute=False,
+                       dirs_only=False,
+                       files_only=False):
+        """Generator yielding the files and directories under a given path.
+
+        This method behaves identically to listdir() but returns a generator
+        instead of a list.  Depending on the filesystem this may be more
+        efficient than calling listdir() and iterating over the resulting list.
+        """
+        return iter(self.listdir(path,
+                                 wildcard=wildcard,
+                                 full=full,
+                                 absolute=absolute,
+                                 dirs_only=dirs_only,
+                                 files_only=files_only))
+
+    def ilistdirinfo(self, path="./",
+                           wildcard=None,
+                           full=False,
+                           absolute=False,
+                           dirs_only=False,
+                           files_only=False):
+        """Generator yielding paths and path info under a given path.
+
+        This method behaves identically to listdirinfo() but returns a generator
+        instead of a list.  Depending on the filesystem this may be more
+        efficient than calling listdirinfo() and iterating over the resulting
+        list.
+        """
+        return iter(self.listdirinfo(path,wildcard,full,absolute,dirs_only,files_only))
 
     def makedir(self, path, recursive=False, allow_recreate=False):
         """Make a directory on the filesystem.
@@ -604,6 +646,7 @@ class FS(object):
         :param path: a path of the file to create
         :param data: a string or a file-like object containing the contents for the new file
         :param chunk_size: Number of bytes to read in a chunk, if the implementation has to resort to a read / copy loop
+        
         """
         
         if not data:
@@ -626,6 +669,74 @@ class FS(object):
             finally:
                 if f is not None:
                     f.close()
+                    
+    def setcontents_async(self,
+                          path,
+                          data,
+                          chunk_size=1024*64,
+                          progress_callback=None,
+                          finished_callback=None,
+                          error_callback=None):
+        """Create a new file from a string or file-like object asynchronously
+        
+        This method returns a threading.Event object. Call the `wait` on the event
+        to block until all data has been written, or simply ignore it.        
+        
+        :param path: a path of the file to create
+        :param data: a string or a file-like object containing the contents for the new file
+        :param chunk_size: Number of bytes to read and write in a chunk
+        :param progress_callback: A function that is called periodically
+            with the number of bytes written.
+        :param finished_callback: A fuction that is called when all data has been written
+        :param error_callback: A function that is called with an exception
+            object if any error occurrs during the copy process.
+        :returns: An event object that is set when the copy is complete, call
+            the `wait` method of this object to block until the data is written
+            
+        """                
+        
+        if progress_callback is None:
+            progress_callback = lambda bytes_written:None                        
+        
+        def do_setcontents():        
+            try:        
+                f = None
+                try:
+                    f = self.open(path, 'wb')
+                    progress_callback(0)                    
+                    
+                    if hasattr(data, "read"):
+                        bytes_written = 0
+                        read = data.read
+                        write = f.write
+                        chunk = read(chunk_size)
+                        while chunk:
+                            write(chunk)
+                            bytes_written += len(chunk)
+                            progress_callback(bytes_written)
+                            chunk = read(chunk_size)                        
+                    else:                        
+                        f.write(data)                                    
+                        progress_callback(len(data))
+                        
+                    if finished_callback is not None:
+                        finished_callback()
+                    
+                finally:
+                    if f is not None:
+                        f.close()
+                        
+            except Exeption, e:
+                if error_callback is not None:
+                    error_callback(e)
+            
+            finally:
+                finished_event.set()
+        
+        finished_event = threading.Event()        
+        threading.Thread(target=do_setcontents).start()
+        return finished_event
+                    
         
     def createfile(self, path, wipe=False):
         """Creates an empty file if it doesn't exist
@@ -650,6 +761,7 @@ class FS(object):
 
         :param path: path to directory to open
         :rtype: An FS object
+        
         """
         
         if path in ('', '/'):
@@ -709,23 +821,31 @@ class FS(object):
             while dirs:
                 current_path = dirs.pop()
                 paths = []
-                for filename in listdir(current_path):
-                    path = pathjoin(current_path, filename)
-                    if self.isdir(path):                        
-                        if dir_wildcard(path):
-                            dirs.append(path)                        
-                    else:                        
-                        if wildcard(filename):
-                            paths.append(filename)
-                        
+                try:
+                    for filename in listdir(current_path):
+                        path = pathjoin(current_path, filename)
+                        if self.isdir(path):                        
+                            if dir_wildcard(path):
+                                dirs.append(path)                        
+                        else:                        
+                            if wildcard(filename):
+                                paths.append(filename)
+                except ResourceNotFoundError:
+                    # Could happen if another thread / process deletes something whilst we are walking
+                    pass
+                            
                 yield (current_path, paths)
 
         elif search == "depth":
 
             def recurse(recurse_path):
-                for path in listdir(recurse_path, wildcard=dir_wildcard, full=True, dirs_only=True):
-                    for p in recurse(path):
-                        yield p
+                try:
+                    for path in listdir(recurse_path, wildcard=dir_wildcard, full=True, dirs_only=True):
+                        for p in recurse(path):
+                            yield p
+                except ResourceNotFoundError:
+                    # Could happen if another thread / process deletes something whilst we are walking
+                    pass
                 yield (recurse_path, self.listdir(recurse_path, wildcard=wildcard, files_only=True))
 
             for p in recurse(path):
@@ -782,7 +902,7 @@ class FS(object):
         if size is None:
             raise OperationFailedError("get size of resource", path)
         return size
-
+    
     def copy(self, src, dst, overwrite=False, chunk_size=1024*64):
         """Copies a file from src to dst.
 
@@ -833,7 +953,7 @@ class FS(object):
     def _shutil_movefile(cls, src_syspath, dst_syspath):
         shutil.move(src_syspath, dst_syspath)
         
-
+    
     def move(self, src, dst, overwrite=False, chunk_size=16384):
         """moves a file from one location to another.
 
@@ -842,6 +962,8 @@ class FS(object):
         :param overwrite: if True, then an existing file at the destination path
             will be silently overwritten; if False then an exception
             will be raised in this case.
+        :param overwrite: When True the destination will be overwritten (if it exists),
+            otherwise a DestinationExistsError will be thrown 
         :type overwrite: bool
         :param chunk_size: Size of chunks to use when copying, if a simple copy
             is required
@@ -867,7 +989,7 @@ class FS(object):
                 pass
         self.copy(src, dst, overwrite=overwrite, chunk_size=chunk_size)
         self.remove(src)
-
+    
     def movedir(self, src, dst, overwrite=False, ignore_errors=False, chunk_size=16384):
         """moves a directory from one location to another.
 
@@ -926,7 +1048,7 @@ class FS(object):
                 movefile(src_filename, dst_filename, overwrite=overwrite, chunk_size=chunk_size)
 
             self.removedir(dirname)
-
+    
     def copydir(self, src, dst, overwrite=False, ignore_errors=False, chunk_size=16384):
         """copies a directory from one location to another.
 
@@ -1031,7 +1153,10 @@ class FS(object):
         if syspath is None:
             raise NoMMapError(path)
         
-        import mmap
+        try:
+            import mmap            
+        except ImportError:
+            raise NoMMapError(msg="mmap not supported")
         
         if read_only:
             f = open(syspath, 'rb')
@@ -1044,7 +1169,7 @@ class FS(object):
                 f = open(syspath, 'r+b')
                 access = mmap.ACCESS_WRITE      
                   
-        m = mmap.mmap(f.fileno, 0, access=access)
+        m = mmap.mmap(f.fileno(), 0, access=access)
         return m
 
 

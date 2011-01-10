@@ -1,3 +1,5 @@
+__all__ = ["serve_fs"]
+
 import SimpleHTTPServer
 import SocketServer
 from fs.path import pathjoin, dirname
@@ -9,6 +11,7 @@ import urllib
 import posixpath
 import time
 import threading
+import socket
 
 def _datetime_to_epoch(d):
     return mktime(d.timetuple())
@@ -27,7 +30,10 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         try:
             f = self.send_head()
             if f:
-                self.copyfile(f, self.wfile)                
+                try:
+                    self.copyfile(f, self.wfile)
+                except socket.error:
+                    pass                
         finally:
             if f is not None:
                 f.close()             
@@ -44,8 +50,6 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         """
         path = self.translate_path(self.path)
-        #path = self.translate_path(self.path)
-        #print path
         f = None
         if self._fs.isdir(path):
             if not self.path.endswith('/'):
@@ -54,7 +58,7 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.send_header("Location", self.path + "/")
                 self.end_headers()
                 return None
-            for index in "index.html", "index.htm":
+            for index in ("index.html", "index.htm"):
                 index = pathjoin(path, index)
                 if self._fs.exists(index):
                     path = index
@@ -124,7 +128,15 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         return path
         
 
-def serve_fs(fs, address='', port=8000):        
+def serve_fs(fs, address='', port=8000):
+    
+    """Serve an FS instance over http
+    
+    :param fs: an FS object
+    :param address: IP address to serve on
+    :param port: port number
+    
+    """
     
     def Handler(request, client_address, server):
         return FSHTTPRequestHandler(fs, request, client_address, server)

@@ -10,12 +10,14 @@ optional leading slash).
 
 """
 
+import re
 
+_requires_normalization = re.compile(r'/\.\.|\./|//|\\').search
 def normpath(path):
     """Normalizes a path to be in the format expected by FS objects.
 
     This function remove any leading or trailing slashes, collapses
-    duplicate slashes, replaces forward with backward slashes, and generally
+    duplicate slashes, replaces backward with forward slashes, and generally
     tries very hard to return a new path string the canonical FS format.
     If the path is invalid, ValueError will be raised.
     
@@ -34,28 +36,29 @@ def normpath(path):
     ValueError: too many backrefs in path 'foo/../../bar'
 
     """
-    if not path:
+    
+    if path in ('', '/'):
         return path
+    
+    # An early out if there is no need to normalize this paath
+    if not _requires_normalization(path):        
+        return path.rstrip('/')
+                
     components = []
-    for comp in path.replace('\\','/').split("/"):
-        if not comp or comp == ".":
-            pass
-        elif comp == "..":
+    append = components.append
+    for comp in [c for c in path.replace('\\','/').split("/") if c not in ('', '.')]:
+        if comp == "..":
             try:
                 components.pop()
-            except IndexError:
-                err = "too many backrefs in path '%s'" % (path,)
-                raise ValueError(err)
+            except IndexError:                
+                raise ValueError("too many backrefs in path '%s'" % path)
         else:
-            components.append(comp)
-    if path[0] in "\\/":
+            append(comp)
+    if path[0] in '\\/':
         if not components:
-            components = [""]
+            append("")
         components.insert(0, "")
-    if isinstance(path, unicode):
-        return u"/".join(components)
-    else:
-        return '/'.join(components)
+    return "/".join(components)
 
 
 def iteratepath(path, numsplits=None):
@@ -69,9 +72,9 @@ def iteratepath(path, numsplits=None):
     if not path:
         return []
     if numsplits == None:
-        return map(None, path.split('/'))
+        return path.split('/')
     else:
-        return map(None, path.split('/', numsplits))
+        return path.split('/', numsplits)
         
 def recursepath(path, reverse=False):
     """Returns intermediate paths from the root to the given path
@@ -81,18 +84,28 @@ def recursepath(path, reverse=False):
     >>> recursepath('a/b/c')
     ['/', u'/a', u'/a/b', u'/a/b/c']
     
-    """
-    if reverse:
-        paths = []
-        path = abspath(normpath(path)).rstrip("/")
-        while path:
-            paths.append(path)
-            path = dirname(path).rstrip("/")
-        return paths + [u"/"]
-    else:   
-        paths = [u""] + list(iteratepath(path))
-        return [u"/"] + [u'/'.join(paths[:i+1]) for i in xrange(1,len(paths))]
+    """        
     
+    if path in ('', '/'):
+        return [u'/']
+        
+    path = abspath(normpath(path)) + '/'    
+   
+    paths = [u'/']
+    find = path.find
+    append = paths.append             
+    pos = 1
+    len_path = len(path)    
+    
+    while pos < len_path:                        
+        pos = find('/', pos)                     
+        append(path[:pos])
+        pos += 1                            
+        
+    if reverse:
+        return paths[::-1]
+    return paths        
+
 def abspath(path):
     """Convert the given path to an absolute path.
 
@@ -100,8 +113,6 @@ def abspath(path):
     adds a leading '/' character if the path doesn't already have one.
 
     """
-    if not path:
-        return u'/'
     if not path.startswith('/'):
         return u'/' + path
     return path
@@ -119,9 +130,7 @@ def relpath(path):
     'a/b'
 
     """
-    while path and path[0] == "/":
-        path = path[1:]
-    return path
+    return path.lstrip('/')
 
 
 def pathjoin(*paths):
@@ -140,7 +149,7 @@ def pathjoin(*paths):
 
     """
     absolute = False
-    relpaths = []
+    relpaths = []    
     for p in paths:
         if p:
              if p[0] in '\\/':
@@ -148,13 +157,21 @@ def pathjoin(*paths):
                  absolute = True
              relpaths.append(p)
 
-    path = normpath("/".join(relpaths))
-    if absolute and not path.startswith("/"):
-        path = u"/" + path
+    path = normpath(u"/".join(relpaths))
+    if absolute:
+        path = abspath(path)
     return path
 
-# Allow pathjoin() to be used as fs.path.join()
-join = pathjoin
+
+def join(*paths):
+    """Joins any number of paths together, returning a new path string.
+
+    This is a simple alias for the ``pathjoin`` function, allowing it to be
+    used as ``fs.path.join`` in direct correspondance with ``os.path.join``.
+    
+    :param paths: Paths to join are given in positional arguments
+    """
+    return pathjoin(*paths)
 
 
 def pathsplit(path):
@@ -175,13 +192,22 @@ def pathsplit(path):
     ('/foo/bar', 'baz')
 
     """
-    split = normpath(path).rsplit('/', 1)
-    if len(split) == 1:
-        return (u'', split[0])
-    return split[0] or '/', split[1]
+    if '/' not in path:
+        return ('', path)
+    split = path.rsplit('/', 1)
+    return (split[0] or '/', split[1])
 
-# Allow pathsplit() to be used as fs.path.split()
-split = pathsplit
+
+def split(path):
+    """Splits a path into (head, tail) pair.
+
+    This is a simple alias for the ``pathsplit`` function, allowing it to be
+    used as ``fs.path.split`` in direct correspondance with ``os.path.split``.
+
+    :param path: Path to split
+    """
+    return pathsplit(path)
+
 
 def splitext(path):
     """Splits the extension from the path, and returns the path (up to the last
@@ -213,14 +239,14 @@ def isdotfile(path):
     >>> isdotfile('.baz')
     True
     
-    >>> isdotfile('foo/bar/.baz')
+    >>> isdotfile('foo/bar/baz')
     True
     
-    >>> isdotfile('foo/bar.baz')
+    >>> isdotfile('foo/bar.baz').
     False
     
     """
-    return pathsplit(path)[-1].startswith('.')
+    return basename(path).startswith('.')
 
 def dirname(path):
     """Returns the parent directory of a path.
@@ -234,8 +260,10 @@ def dirname(path):
     'foo/bar'
 
     """
-    return pathsplit(path)[0]
-
+    if '/' not in path:
+        return ''
+    return path.rsplit('/', 1)[0]
+    
 
 def basename(path):
     """Returns the basename of the resource referenced by a path.
@@ -249,7 +277,9 @@ def basename(path):
     'baz'
 
     """
-    return pathsplit(path)[1]
+    if '/' not in path:
+        return path
+    return path.rsplit('/', 1)[-1]
 
 
 def issamedir(path1, path2):
@@ -264,7 +294,7 @@ def issamedir(path1, path2):
     False
 
     """
-    return pathsplit(normpath(path1))[0] == pathsplit(normpath(path2))[0]
+    return dirname(normpath(path1)) == dirname(normpath(path2))
 
 def isbase(path1, path2):
     p1 = forcedir(abspath(path1))
@@ -324,9 +354,18 @@ def frombase(path1, path2):
 class PathMap(object):
     """Dict-like object with paths for keys.
 
-    A PathMap is like a dictionary where the keys are all FS paths.  It allows
-    various dictionary operations (e.g. listing values, clearing values) to
-    be performed on a subset of the keys sharing some common prefix, e.g.::
+    A PathMap is like a dictionary where the keys are all FS paths.  It has
+    two main advantages over a standard dictionary.  First, keys are normalised
+    automatically::
+
+        >>> pm = PathMap()
+        >>> pm["hello/world"] = 42
+        >>> print pm["/hello/there/../world"]
+        42
+
+    Second, various dictionary operations (e.g. listing or clearing values)
+    can be efficiently performed on a subset of keys sharing some common
+    prefix::
 
         # list all values in the map
         pm.values()
@@ -532,3 +571,6 @@ def iswildcard(path):
     assert path is not None
     base_chars = frozenset(basename(path))    
     return not base_chars.isdisjoint(_wild_chars)    
+
+if __name__ == "__main__":
+    print recursepath('a/b/c')

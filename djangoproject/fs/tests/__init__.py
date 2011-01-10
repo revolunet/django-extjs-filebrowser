@@ -128,6 +128,27 @@ class FSTestCases(object):
         #  ...and a file-like object
         self.fs.setcontents("hello",StringIO("to you, good sir!"))
         self.assertEquals(self.fs.getcontents("hello"),"to you, good sir!")
+        #  setcontents() should accept both a string...
+        self.fs.setcontents("hello","world", chunk_size=2)
+        self.assertEquals(self.fs.getcontents("hello"),"world")
+        #  ...and a file-like object
+        self.fs.setcontents("hello",StringIO("to you, good sir!"), chunk_size=2)
+        self.assertEquals(self.fs.getcontents("hello"),"to you, good sir!")
+
+
+
+    def test_setcontents_async(self):
+        #  setcontents() should accept both a string...
+        self.fs.setcontents_async("hello", "world").wait()
+        self.assertEquals(self.fs.getcontents("hello"), "world")
+        #  ...and a file-like object
+        self.fs.setcontents_async("hello",StringIO("to you, good sir!")).wait()
+        self.assertEquals(self.fs.getcontents("hello"), "to you, good sir!")
+        self.fs.setcontents_async("hello", "world", chunk_size=2).wait()
+        self.assertEquals(self.fs.getcontents("hello"), "world")
+        #  ...and a file-like object
+        self.fs.setcontents_async("hello", StringIO("to you, good sir!"), chunk_size=2).wait()
+        self.assertEquals(self.fs.getcontents("hello"), "to you, good sir!")        
 
     def test_isdir_isfile(self):
         self.assertFalse(self.fs.exists("dir1"))
@@ -685,21 +706,26 @@ class FSTestCases(object):
             self.assertEquals(self.fs.getcontents('f.txt'),contents)
 
     def test_pickling(self):
-        self.fs.setcontents("test1","hello world")
-        fs2 = pickle.loads(pickle.dumps(self.fs))
-        self.assert_(fs2.isfile("test1"))
-        fs3 = pickle.loads(pickle.dumps(self.fs,-1))
-        self.assert_(fs3.isfile("test1"))
+        if self.fs.getmeta('pickle_contents', True):
+            self.fs.setcontents("test1","hello world")
+            fs2 = pickle.loads(pickle.dumps(self.fs))
+            self.assert_(fs2.isfile("test1"))
+            fs3 = pickle.loads(pickle.dumps(self.fs,-1))
+            self.assert_(fs3.isfile("test1"))
+        else:
+            # Just make sure it doesn't throw an exception
+            fs2 = pickle.loads(pickle.dumps(self.fs))
+            
 
-    def test_big_file(self):
-        return
+    def test_big_file(self):        
         chunk_size = 1024 * 256
         num_chunks = 4
         def chunk_stream():
             """Generate predictable-but-randomy binary content."""
             r = random.Random(0)
+            randint = r.randint
             for i in xrange(num_chunks):
-                c = "".join(chr(r.randint(0,255)) for j in xrange(chunk_size/8))
+                c = "".join(chr(randint(0,255)) for j in xrange(chunk_size/8))
                 yield c * 8
         f = self.fs.open("bigfile","wb")
         try:

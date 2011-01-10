@@ -1,8 +1,10 @@
-from fs.utils import movefile, contains_files
+#!/usr/bin/env python
+
+from fs.utils import movefile, movefile_non_atomic, contains_files
 from fs.commands import fscp
 import sys
 
-class FSMove(fscp.FScp):
+class FSmv(fscp.FScp):
     
     usage = """fsmv [OPTION]... [SOURCE] [DESTINATION]
 Move files from SOURCE to DESTINATION"""
@@ -10,8 +12,11 @@ Move files from SOURCE to DESTINATION"""
     def get_verb(self):
         return 'moving...'
     
-    def get_action(self):        
-        return movefile
+    def get_action(self):  
+        if self.options.threads > 1:      
+            return movefile_non_atomic
+        else:
+            return movefile
     
     def post_actions(self):
         for fs, dirpath in self.root_dirs:
@@ -19,7 +24,7 @@ Move files from SOURCE to DESTINATION"""
                 fs.removedir(dirpath, force=True)
     
 def run():
-    return FSMove().run()
+    return FSmv().run()
     
 if __name__ == "__main__":
     sys.exit(run())

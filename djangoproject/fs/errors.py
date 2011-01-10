@@ -1,6 +1,6 @@
 """
 Defines the Exception classes thrown by PyFilesystem objects. Exceptions relating
-to the underling filesystem are translated in to one of the following Exceptions.
+to the underlying filesystem are translated in to one of the following Exceptions.
 Exceptions that relate to a path store that path in `self.path`.
 
 All Exception classes are derived from `FSError` which can be used as a
@@ -61,8 +61,9 @@ class FSError(Exception):
     def __unicode__(self):
         return unicode(self.msg) % self.__dict__
 
-    def __getstate__(self):
-       return self.__dict__.copy()
+    def __reduce__(self):
+        return (self.__class__,(),self.__dict__.copy(),)
+
 
 
 class CreateFailedError(FSError):
@@ -139,6 +140,8 @@ class NoMetaError(FSError):
     def __init__(self, meta_name, msg=None):
         self.meta_name = meta_name
         super(NoMetaError, self).__init__(msg)
+    def __reduce__(self):
+        return (self.__class__,(self.meta_name,),self.__dict__.copy(),)
 
 
 class NoPathURLError(ResourceError):

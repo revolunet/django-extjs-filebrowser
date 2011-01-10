@@ -4,7 +4,7 @@
 
   fs.contrib.davfs.xmlobj:  dexml model definitions for WebDAV
 
-This module defines the various XML elemen structures for WebDAV as a set
+This module defines the various XML element structures for WebDAV as a set
 of dexml.Model subclasses.
 
 """
@@ -175,9 +175,9 @@ class activelock(_davbase):
     lockscope = fields.Model("lockscope")
     locktype = fields.Model("locktype")
     depth = fields.String(tagname="depth")
-    owner = fields.XmlNode(tagname="owner",encoding="UTF-8")
-    timeout = TimeoutField()
-    locktoken = fields.Model("locktoken")
+    owner = fields.XmlNode(tagname="owner",encoding="UTF-8",required=False)
+    timeout = TimeoutField(required=False)
+    locktoken = fields.Model("locktoken",required=False)
 
 class lockscope(_davbase):
     """XML model for a lockscope response message."""

@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 from fs.opener import opener
-from fs.utils import copyfile, copystructure
+from fs.utils import copyfile, copyfile_non_atomic, copystructure
 from fs.path import pathjoin, iswildcard
 from fs.errors import FSError
 from fs.commands.runner import Command
@@ -22,26 +24,25 @@ class FileOpThread(threading.Thread):
     
     def run(self):        
         
-        try:
-            while not self.finish_event.isSet():            
-                try:
-                    path_type, fs, path, dest_path = self.queue.get(timeout=0.1)
-                except queue.Empty:
-                    continue
-                try:
-                    if path_type == FScp.DIR:                        
-                        self.dest_fs.makedir(path, recursive=True, allow_recreate=True)
-                    else:                                                                
-                        self.action(fs, path, self.dest_fs, dest_path, overwrite=True) 
-                except Exception, e:                    
-                    self.queue.task_done()                                  
-                    raise                   
-                else:
-                    self.queue.task_done() 
-                    self.on_done(path_type, fs, path, self.dest_fs, dest_path)
-                        
-        except Exception, e:            
-            self.on_error(e)            
+        while not self.finish_event.isSet():            
+            try:
+                path_type, fs, path, dest_path = self.queue.get(timeout=0.1)
+            except queue.Empty:
+                continue
+            try:                
+                if path_type == FScp.DIR:                        
+                    self.dest_fs.makedir(path, recursive=True, allow_recreate=True)
+                else:                                                                
+                    self.action(fs, path, self.dest_fs, dest_path, overwrite=True)                    
+            except Exception, e:                
+                self.on_error(e)                                
+                self.queue.task_done()                                  
+                break                   
+            else:
+                self.queue.task_done() 
+                self.on_done(path_type, fs, path, self.dest_fs, dest_path)
+                      
+                     
 
 class FScp(Command):
     
@@ -51,7 +52,10 @@ class FScp(Command):
 Copy SOURCE to DESTINATION"""
     
     def get_action(self):
-        return copyfile
+        if self.options.threads > 1:
+            return copyfile_non_atomic
+        else:
+            return copyfile
     
     def get_verb(self):
         return 'copying...'
@@ -74,7 +78,7 @@ Copy SOURCE to DESTINATION"""
         srcs = args[:-1]
         dst = args[-1] 
         
-        dst_fs, dst_path = self.open_fs(dst, writeable=True, create=True)
+        dst_fs, dst_path = self.open_fs(dst, writeable=True, create_dir=True)
         
         if dst_path is not None and dst_fs.isfile(dst_path):
             self.error('Destination must be a directory\n')
@@ -83,7 +87,7 @@ Copy SOURCE to DESTINATION"""
         if dst_path:
             dst_fs = dst_fs.makeopendir(dst_path)
             dst_path = None                      
-        
+                
         copy_fs_paths = []
         
         progress = options.progress                
@@ -147,10 +151,11 @@ Copy SOURCE to DESTINATION"""
                                 self.on_done,
                                 self.on_error)
                         for i in xrange(options.threads)]
+        
         for thread in threads:
             thread.start()
         
-        self.action_error = None
+        self.action_errors = []
         complete = False
         try:        
             enqueue = file_queue.put            
@@ -166,16 +171,11 @@ Copy SOURCE to DESTINATION"""
             #file_queue.join()
         
         except KeyboardInterrupt:            
-            options.progress = False
-            if self.action_error:
-                self.error(self.wrap_error(unicode(self.action_error)) + '\n')  
-            else:          
-                self.output("\nCancelling...\n")
+            options.progress = False                    
+            self.output("\nCancelling...\n")
                 
         except SystemExit:
-            options.progress = False
-            if self.action_error:
-                self.error(self.wrap_error(unicode(self.action_error)) + '\n')
+            options.progress = False            
                                
         finally:
             sys.stdout.flush()                
@@ -184,14 +184,20 @@ Copy SOURCE to DESTINATION"""
             for thread in threads:
                 thread.join()
             complete = True
-            self.post_actions()
+            if not any_error():
+                self.post_actions()
                                    
         dst_fs.close()
         
-        if complete and options.progress:
-            sys.stdout.write(self.progress_bar(self.total_files, self.done_files, ''))
-            sys.stdout.write('\n')
-            sys.stdout.flush()        
+        if self.action_errors:
+            for error in self.action_errors:
+                self.error(self.wrap_error(unicode(error)) + '\n')            
+            sys.stdout.flush()
+        else:
+            if complete and options.progress:
+                sys.stdout.write(self.progress_bar(self.total_files, self.done_files, ''))
+                sys.stdout.write('\n')
+                sys.stdout.flush()
         
     def post_actions(self):
         pass
@@ -211,17 +217,17 @@ Copy SOURCE to DESTINATION"""
         finally:
             self.lock.release()
             
-    def on_error(self, e):
+    def on_error(self, e):        
         self.lock.acquire()
         try:
-            self.action_error = e
+            self.action_errors.append(e)
         finally:
             self.lock.release()
     
     def any_error(self):                
         self.lock.acquire()
         try:
-            return bool(self.action_error)
+            return bool(self.action_errors)
         finally:
             self.lock.release()
             
@@ -233,10 +239,8 @@ Copy SOURCE to DESTINATION"""
         
         done_steps = int(done * bar_width)
         bar_steps = ('#' * done_steps).ljust(bar_width) 
-        
-        
-        msg = '%s %i%%' % (msg, int(done * 100.0))
-        
+                
+        msg = '%s %i%%' % (msg, int(done * 100.0))        
         msg = msg.ljust(20)
         
         if total == remaining:
