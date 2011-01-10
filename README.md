@@ -5,7 +5,7 @@ django pluggable app with ExtJs based explorer like to browse, manage, upload an
 
 The django backend uses PyFilesystem so you can read/write to differents datasources and copy files across differents servers or amazon s3 buckets.
 
-The example django app is located at [djangoproject/apps/django_extjs_filebrowser][10]
+The  [master branch][12] is the reusable app itself and you have a django-example branch with a [working django project][13]
 
 Comments welcome at [contact@revolunet.com][8]
  
@@ -31,8 +31,12 @@ Comments welcome at [contact@revolunet.com][8]
  
 **Installation**
 
+ * This is how to install the full django-example :
  * git clone [git@github.com:revolunet/django-extjs-filebrowser.git][11]
- * git submodule update
+ * git fetch && git checkout django-example
+ * git submodule update --init
+ * cd djangoproject/apps/django_extjs_filebrowser
+ * git submodule update --init
  * configure djangoproject/local_settings.py and djangoproject/apps/django_extjs_filebrowser/settings.py from the samples
  * set EXTJS_PATH and DJANGO_SOURCE variables to point to these libs. (licence problem for ExtJs)
  * start python djangoproject/scripts/manage.py runserver
@@ -58,6 +62,8 @@ Comments welcome at [contact@revolunet.com][8]
   [6]: https://github.com/revolunet/Ext.ux.upload
   [7]: http://www.swfupload.org
   [8]: mailto:contact@revolunet.com
-  [9]: https://github.com/revolunet/django-extjs-filebrowser/raw/master/example.jpg
+  [9]: https://github.com/revolunet/django-extjs-filebrowser/raw/django-example/example.jpg
   [10]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/djangoproject/apps/django_extjs_filebrowser
   [11]: git@github.com:revolunet/django-extjs-filebrowser.git
+  [12]: https://github.com/revolunet/django-extjs-filebrowser/tree/master
+  [13]: https://github.com/revolunet/django-extjs-filebrowser/tree/django-example
