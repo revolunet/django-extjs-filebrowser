@@ -14,13 +14,14 @@ def dirToJson( inFs, path = '/', recursive = False):
         fPath =  os.path.join(path, item ) 
         infos = inFs.getinfo( fPath )
         isLeaf = not inFs.isdir( fPath )
-       
+        iconCls = not isLeaf and 'icon-folder' or 'icon-file-%s' % item[item.rfind('.')+1:]
         row = {
             'text':item
             ,'size':infos.get('size', 0)
             ,'modified_time':infos.get('modified_time', datetime.datetime.now()).isoformat()
             ,'created_time':infos.get('created_time', datetime.datetime.now()).isoformat()
             ,'leaf':isLeaf
+            ,'iconCls':iconCls
             ,'items':[]
         }
         # recursive and isdir ? 
