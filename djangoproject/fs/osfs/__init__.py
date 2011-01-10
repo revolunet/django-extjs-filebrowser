@@ -108,11 +108,15 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
                 if not root_path.startswith("\\"):
                    root_path = u"\\\\?\\" + root_path
                 else:
-                   root_path = u"\\\\?" + root_path
+                    if root_path.startswith("\\\\"):
+                        # UNC paths fix
+                        pass
+                    else:
+                        root_path = u"\\\\?" + root_path
             #  If it points at the root of a drive, it needs a trailing slash.
             if len(root_path) == 6 and not root_path.endswith("\\"):
                 root_path = root_path + "\\"
-
+        
         if create:
             try:
                 _os_makedirs(root_path, mode=dir_mode)
