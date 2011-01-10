@@ -1,0 +1,7 @@
+*.svn
+*.pyc
+local_settings.py
+data/*
+djangoproject/scripts/apache.wsgi
+djangoproject/apps/django_extjs_filebrowser/settings.py
+core/static/js/ext*
