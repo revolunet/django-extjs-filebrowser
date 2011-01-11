@@ -1,5 +1,5 @@
-django-extjs-explorer
-=====================
+django-extjs-filebrowser
+========================
 
 django pluggable app with ExtJs based explorer like to browse, manage, upload and download files to many filesystems.
 
