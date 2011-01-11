@@ -7,7 +7,7 @@ The django backend uses PyFilesystem so you can read/write to differents datasou
 
 The  [master branch][12] is the reusable app itself and you have a django-example branch with a [working django project][13]
 
-Comments welcome at [contact@revolunet.com][8]
+Code is released under [BSD licence][14] and your comments are welcome at [contact@revolunet.com][8]
  
 ![screenshot image viewer][9]
 
@@ -67,3 +67,4 @@ Comments welcome at [contact@revolunet.com][8]
   [11]: git@github.com:revolunet/django-extjs-filebrowser.git
   [12]: https://github.com/revolunet/django-extjs-filebrowser/tree/master
   [13]: https://github.com/revolunet/django-extjs-filebrowser/tree/django-example
+  [13]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/licence.txt
