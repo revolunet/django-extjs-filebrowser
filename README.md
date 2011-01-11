@@ -67,4 +67,4 @@ Code is released under [BSD licence][14] and your comments are welcome at [conta
   [11]: git@github.com:revolunet/django-extjs-filebrowser.git
   [12]: https://github.com/revolunet/django-extjs-filebrowser/tree/master
   [13]: https://github.com/revolunet/django-extjs-filebrowser/tree/django-example
-  [13]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/licence.txt
+  [14]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/licence.txt
