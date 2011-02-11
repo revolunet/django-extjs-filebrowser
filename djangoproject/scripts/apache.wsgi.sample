@@ -1,0 +1,27 @@
+#!/usr/bin/python2.5
+
+import os, sys
+
+
+BASE_DIR = os.path.realpath(os.path.dirname(__file__))
+sys.path.insert(0, BASE_DIR)
+
+import settings
+
+sys.path.insert(0, settings.DJANGO_SOURCE)
+
+import django
+print django.VERSION
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
+import django.core.handlers.wsgi
+
+_application = django.core.handlers.wsgi.WSGIHandler()
+
+
+def application(environ, start_response):
+        environ['PATH_INFO'] = environ['SCRIPT_NAME'] + environ['PATH_INFO']
+        return _application(environ, start_response)
+
+
