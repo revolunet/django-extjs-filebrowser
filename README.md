@@ -33,7 +33,9 @@ Code is released under [BSD licence][14] and your comments are welcome at [conta
 
  * This is how to install the full django-example :
  * git clone [git@github.com:revolunet/django-extjs-filebrowser.git][11]
- * git fetch && git checkout django-example
+ * git fetch
+ * git branch --track django-example origin/django-example
+ * git checkout django-example
  * git submodule update --init
  * cd djangoproject/apps/django_extjs_filebrowser
  * git submodule update --init
