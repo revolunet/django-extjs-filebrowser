@@ -1,6 +1,8 @@
 django-extjs-filebrowser
 ========================
 
+There is a wroking demo here : [http://filebrowser.demo.revolunet.com][15]
+
 django pluggable app with ExtJs based explorer like to browse, manage, upload and download files to many filesystems.
 
 The django backend uses PyFilesystem so you can read/write to differents datasources and copy files across differents servers or amazon s3 buckets.
@@ -70,3 +72,4 @@ Code is released under [BSD licence][14] and your comments are welcome at [conta
   [12]: https://github.com/revolunet/django-extjs-filebrowser/tree/master
   [13]: https://github.com/revolunet/django-extjs-filebrowser/tree/django-example
   [14]: https://github.com/revolunet/django-extjs-filebrowser/tree/master/licence.txt
+  [15]: http://filebrowser.demo.revolunet.com
