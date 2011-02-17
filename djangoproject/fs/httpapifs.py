@@ -43,8 +43,7 @@ class _HTTPAPIFSFile(object):
                 'cmd':'view'
                 ,'file':self.path
             }
-        params = urlencode( get )
-        f = urlopen( self.httpapifs.root_url + '?' + params )
+        f = self.httpapifs.urlopen({}, get = get)
         return f.read()
         
     def write(self, data):
@@ -54,7 +53,8 @@ class _HTTPAPIFSFile(object):
         headers = {
             'X_FILE_NAME':self.path
         }
-        r = urlopen( Request(self.httpapifs.root_url + '?' + urlencode(get), data, headers ) )
+        f = self.httpapifs.urlopen(data, get = get, headers = headers)
+        #r = urlopen( Request(self.httpapifs.root_url + '?' + urlencode(get), data, headers ) )
 
     def close(self):
         self.closed = True        
@@ -82,6 +82,11 @@ class HTTPAPIFS(FS):
         self.root_url = url
         self.cache_paths = {}
        
+    def urlopen( self, data, get = {}, headers = {}):
+        get = get and ('?'+urlencode(get)) or ""
+        r = urlopen( Request(self.root_url + get, urlencode(data), headers ) )
+        return r
+        
     def cacheReset(self):
         self.cache_paths = {}
         
@@ -150,8 +155,8 @@ class HTTPAPIFS(FS):
             'cmd':'newdir'
             ,'dir':path
         }
-        params = urlencode( post )
-        f = urlopen( self.root_url, params )
+
+        f = self.urlopen( post )
         d  = simplejson.load( f )
         f.close()
         return (d['success']=='true')
@@ -164,8 +169,7 @@ class HTTPAPIFS(FS):
             ,'oldname':src
             ,'newname':dst
         }
-        params = urlencode( post )
-        f = urlopen( self.root_url, params )
+        f = self.urlopen( post )
         d  = simplejson.load( f )
         f.close()
         
@@ -194,8 +198,7 @@ class HTTPAPIFS(FS):
             'cmd':'delete'
             ,'file':path
         }
-        params = urlencode( post )
-        f = urlopen( self.root_url, params )
+        f = self.urlopen( post )
         d  = simplejson.load( f )
         f.close()
         self.refreshDirCache( path )
@@ -251,9 +254,7 @@ class HTTPAPIFS(FS):
             ,'path':path
         }
         print 'HTTP FETCH %s' % self.root_url, path, post
-        params = urlencode( post )
-        f = urlopen( self.root_url, params )
-        #print f.read()
+        f = self.urlopen( post )
         d  = simplejson.load( f )
         f.close()
         list = []
