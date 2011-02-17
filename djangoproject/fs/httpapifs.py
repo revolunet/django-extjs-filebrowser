@@ -10,7 +10,7 @@ from fs.base import FS
 from fs.path import normpath
 from fs.errors import ResourceNotFoundError, UnsupportedError
 import urlparse 
-from urllib2 import urlopen, URLError, Request
+import urllib2
 from urllib import urlencode
 
 from remote import CacheFS
@@ -76,15 +76,23 @@ class HTTPAPIFS(FS):
               'atomic.setcontents' : True,
               'file.read_and_write' : False,
               }
-
               
-    def __init__(self, url):        
+    def __init__(self, url, username = None, password = None):        
         self.root_url = url
+        self.username = username
+        self.password = password
         self.cache_paths = {}
        
     def urlopen( self, data, get = {}, headers = {}):
+        if self.username and self.username!='' and self.password and self.password!='':
+            passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+            passman.add_password(None, self.root_url, self.username, self.password)
+            authhandler = urllib2.HTTPBasicAuthHandler(passman)
+            opener = urllib2.build_opener(authhandler)
+            urllib2.install_opener(opener)
+        
         get = get and ('?'+urlencode(get)) or ""
-        r = urlopen( Request(self.root_url + get, urlencode(data), headers ) )
+        r = urllib2.urlopen( urllib2.Request(self.root_url + get, urlencode(data), headers ) )
         return r
         
     def cacheReset(self):
